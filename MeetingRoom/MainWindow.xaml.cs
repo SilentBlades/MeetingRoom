@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Diagnostics;
+using System.Windows;
 
 namespace MeetingRoom
 {
@@ -11,7 +13,58 @@ namespace MeetingRoom
         {
             InitializeComponent();
             ResizeMode = ResizeMode.CanMinimize;
-
         }
+
+        #region
+        /*
+         * submitButton_Click():
+         * This method carries out data collection from GUI and sends it to the respective methods.
+         */
+        private void submitButton_Click(object sender, RoutedEventArgs e)
+        {
+            String dateInput = dateDatePicker.SelectedDate.ToString(); //Get data from DatePicker
+            String dateTimeInput = timeTimePicker.Value.ToString(); //Get data from TimePicker
+            String[] currentDateArray = dateTimeInput.Split(' '); //Extract data
+            String currentDate = currentDateArray[0]; //current date
+            String timeInput = currentDateArray[1]; //user input time
+
+            GetDataFromExcel();
+            WriteDataToExcel();
+        }
+        #endregion
+
+        #region
+        /*
+         * ResetButton_Click():
+         * This method closes the current application and opens a new blank application.
+         */
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(Application.ResourceAssembly.Location);
+            Application.Current.Shutdown();
+        }
+        #endregion
+
+        #region
+        /*
+         * GetDataFromExcel():
+         * Gets the list of available rooms from a excel file.
+         */
+        private void GetDataFromExcel()
+        {
+            //TODO
+        }
+        #endregion
+
+        #region
+        /*
+         * WriteDataToExcel():
+         * Writes the booked room details to the excel file.
+         */
+        private void WriteDataToExcel()
+        {
+            //TODO
+        }
+        #endregion
     }
 }
