@@ -28,8 +28,13 @@ namespace MeetingRoom
             String currentDate = currentDateArray[0]; //current date
             String timeInput = currentDateArray[1]; //user input time
 
-            GetDataFromExcel();
-            WriteDataToExcel();
+            /*
+             * Business logic to figure out time slot for the requested date
+             */
+
+
+            ExcelHandler.GetDataFromExcel();
+            ExcelHandler.WriteDataToExcel();
         }
         #endregion
 
@@ -42,28 +47,6 @@ namespace MeetingRoom
         {
             Process.Start(Application.ResourceAssembly.Location);
             Application.Current.Shutdown();
-        }
-        #endregion
-
-        #region
-        /*
-         * GetDataFromExcel():
-         * Gets the list of available rooms from a excel file.
-         */
-        private void GetDataFromExcel()
-        {
-            //TODO
-        }
-        #endregion
-
-        #region
-        /*
-         * WriteDataToExcel():
-         * Writes the booked room details to the excel file.
-         */
-        private void WriteDataToExcel()
-        {
-            //TODO
         }
         #endregion
     }
