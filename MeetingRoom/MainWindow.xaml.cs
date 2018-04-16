@@ -23,10 +23,6 @@ namespace MeetingRoom
         private void submitButton_Click(object sender, RoutedEventArgs e)
         {
             String dateInput = dateDatePicker.SelectedDate.ToString(); //Get data from DatePicker
-            String dateTimeInput = timeTimePicker.Value.ToString(); //Get data from TimePicker
-            String[] currentDateArray = dateTimeInput.Split(' '); //Extract data
-            String currentDate = currentDateArray[0]; //current date
-            String timeInput = currentDateArray[1]; //user input time
 
             /*
              * Business logic to figure out time slot for the requested date
