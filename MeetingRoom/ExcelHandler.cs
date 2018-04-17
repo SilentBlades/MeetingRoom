@@ -17,17 +17,40 @@ namespace MeetingRoom
          * GetDataFromExcel():
          * Gets the list of available rooms from a excel file.
          */
-        public static void GetDataFromExcel()
+        public static void GetDataFromExcel(string date, int fromIndex, int toIndex)
         {
             try
             {
                 path = ConfigurationManager.AppSettings["ExcelPath"];
+                string sheetName = String.Empty;
                 xlApp = new Application();
-                xlWorkBook = xlApp.Workbooks.Open(path, 0, true, 5, "", "", true, XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
-                xlWorkSheet = (Worksheet)xlWorkBook.Worksheets.get_Item(1);
-                string date = xlWorkSheet.Name;
+                xlWorkBook = xlApp.Workbooks.Open(path, ReadOnly: false);
 
-                range = xlWorkSheet.UsedRange;
+                
+                //Finding the correct worksheet
+                foreach (Worksheet workSheet in xlWorkBook.Worksheets)
+                {
+                    sheetName = workSheet.Name;
+
+                    if (sheetName.Equals(date))
+                    {
+                        xlWorkSheet = workSheet;
+                        break;
+                    }
+                }
+
+                if(xlWorkSheet == null)
+                {
+                    Worksheet xlWorkSheetSource = (Worksheet)xlWorkBook.Sheets["Template"];
+                    xlWorkSheet = (Worksheet)xlWorkBook.Sheets[1];
+                    xlWorkSheetSource.Copy(xlWorkSheet);
+                    xlWorkSheet.Name = date;
+                    xlWorkSheetSource = (Worksheet)xlWorkBook.Sheets[1];
+                    xlWorkSheetSource.Name = "Template";
+                }
+
+
+
             }
             catch (Exception ex)
             {
@@ -35,6 +58,7 @@ namespace MeetingRoom
             }
             finally
             {
+                xlWorkBook.Save();
                 xlWorkBook.Close(true, null, null);
                 xlApp.Quit();
                 Marshal.ReleaseComObject(xlWorkSheet);
