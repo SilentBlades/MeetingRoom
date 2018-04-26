@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
 
@@ -27,10 +27,18 @@ namespace MeetingRoom
             string[] dateInput = dateDatePicker.SelectedDate.ToString().Split(' '); //Get data from DatePicker
             string date = dateInput[0];
 
-            int fromIndex = this.fromTimeComboBox.Items.IndexOf(fromTimeComboBox.SelectedItem);
-            int toIndex = this.fromTimeComboBox.Items.IndexOf(fromTimeComboBox.SelectedItem);
+            int fromIndex = this.fromTimeComboBox.Items.IndexOf(fromTimeComboBox.SelectedItem) + 1;
+            int toIndex = this.fromTimeComboBox.Items.IndexOf(fromTimeComboBox.SelectedItem) + 1;
+            
+            List<string> meetingRoomList = ExcelHandler.GetDataFromExcel(date, fromIndex, toIndex);
+            
+            //binding list to dropdown
+            foreach(var val in meetingRoomList)
+            {
+                roomListComboBox.Items.Add(val);
+            }
 
-            ExcelHandler.GetDataFromExcel(date, fromIndex, toIndex);
+
             ExcelHandler.WriteDataToExcel();
         }
         #endregion
