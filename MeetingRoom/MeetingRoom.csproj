@@ -63,6 +63,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DateTimeSlot.cs" />
     <Compile Include="ExcelHandler.cs" />
     <Compile Include="ExceptionLogging.cs" />
     <Compile Include="MainWindow.xaml.cs">

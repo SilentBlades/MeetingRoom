@@ -12,15 +12,16 @@ namespace MeetingRoom
         private static Workbook xlWorkBook;
         private static Worksheet xlWorkSheet;
         private static string path;
-        #region
+
+        #region GetDataFromExcel
         /*
          * GetDataFromExcel():
          * Gets the list of available rooms from a excel file.
          */
-        public static List<string> GetDataFromExcel(string date, int fromIndex, int toIndex)
+        public static List<string> GetDataFromExcel(DateTimeSlot dts)
         {
-            int cellFromIndex = fromIndex + 1;
-            int cellToIndex = toIndex + 1;
+            int cellFromIndex = dts.From + 1;
+            int cellToIndex = dts.To + 1;
             int rowIterator = 2;
             bool flag = false;
             List<string> meetingRoomList = new List<string>();
@@ -37,7 +38,7 @@ namespace MeetingRoom
                 {
                     sheetName = workSheet.Name;
 
-                    if (sheetName.Equals(date))
+                    if (sheetName.Equals(dts.Date))
                     {
                         xlWorkSheet = workSheet;
                         break;
@@ -49,7 +50,7 @@ namespace MeetingRoom
                     Worksheet xlWorkSheetSource = (Worksheet)xlWorkBook.Sheets["Template"];
                     xlWorkSheet = (Worksheet)xlWorkBook.Sheets[1];
                     xlWorkSheetSource.Copy(xlWorkSheet);
-                    xlWorkSheet.Name = date;
+                    xlWorkSheet.Name = dts.Date;
                     xlWorkSheetSource = (Worksheet)xlWorkBook.Sheets[1];
                     xlWorkSheetSource.Name = "Template";
                 }
@@ -62,7 +63,7 @@ namespace MeetingRoom
                         if (xlWorkSheet.Cells[rowIterator, i].Value == 0) { flag = true; }
                         else { flag = false; break; }
                     }
-                    if (flag) { meetingRoomList.Add(Convert.ToString(rowIterator - 1)); }
+                    if (flag) { meetingRoomList.Add(Convert.ToString(xlWorkSheet.Cells[rowIterator, 1].Value)); }
                 }
             }
             catch (Exception ex)
@@ -83,7 +84,7 @@ namespace MeetingRoom
         }
         #endregion
 
-        #region
+        #region WriteDataToExcel()
         /*
          * WriteDataToExcel():
          * Writes the booked room details to the excel file.

@@ -14,36 +14,79 @@ namespace MeetingRoom
             InitializeComponent();
             SetFromTimerComboBox();
             SetToTimerComboBox();
+            roomListComboBox.IsEnabled = false;
             ResizeMode = ResizeMode.CanMinimize;
         }
-        
-        #region
+
+        #region submitButton_Click
         /*
          * submitButton_Click():
-         * This method carries out data collection from GUI and sends it to the respective methods.
+         * This method carries out data collection from GUI and sends it to WriteDataToExcel().
          */
         private void submitButton_Click(object sender, RoutedEventArgs e)
         {
-            string[] dateInput = dateDatePicker.SelectedDate.ToString().Split(' '); //Get data from DatePicker
-            string date = dateInput[0];
-
-            int fromIndex = this.fromTimeComboBox.Items.IndexOf(fromTimeComboBox.SelectedItem) + 1;
-            int toIndex = this.fromTimeComboBox.Items.IndexOf(fromTimeComboBox.SelectedItem) + 1;
-            
-            List<string> meetingRoomList = ExcelHandler.GetDataFromExcel(date, fromIndex, toIndex);
-            
-            //binding list to dropdown
-            foreach(var val in meetingRoomList)
+            bool executionFlag = true;
+            DateTimeSlot dts = new DateTimeSlot();
+            //DatePicker Validations
+            if (!string.IsNullOrEmpty(dateDatePicker.SelectedDate.ToString()))
             {
-                roomListComboBox.Items.Add(val);
+                string[] dateInput = dateDatePicker.SelectedDate.ToString().Split(' '); //Get data from DatePicker
+                dts.Date = dateInput[0];
+            }
+            else
+            {
+                MessageBox.Show("Please select Date!",
+                                "Error", MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                executionFlag = false;
             }
 
+            //TimePicker Validations
+            if (fromTimeComboBox.SelectedIndex == -1 || toTimeComboBox.SelectedIndex == -1)
+            {
+                MessageBox.Show("Please select Time!",
+                                "Error", MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                executionFlag = false;
+            }
+
+            if(this.fromTimeComboBox.Items.IndexOf(fromTimeComboBox.SelectedItem) > this.fromTimeComboBox.Items.IndexOf(toTimeComboBox.SelectedItem))
+            {
+                MessageBox.Show("Start time cannot be after End time!",
+                                "Error", MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                executionFlag = false;
+            }
+
+            if (executionFlag)
+            {
+                dts.From = this.fromTimeComboBox.Items.IndexOf(fromTimeComboBox.SelectedItem) + 1;
+                dts.To = this.fromTimeComboBox.Items.IndexOf(toTimeComboBox.SelectedItem) + 1;
+
+                dts.MeetingRoomList = ExcelHandler.GetDataFromExcel(dts);
+
+                //binding list to dropdown
+                if (dts.MeetingRoomList.Count > 0)
+                {
+                    foreach (var val in dts.MeetingRoomList)
+                    {
+                        roomListComboBox.Items.Add(val);
+                    }
+                    roomListComboBox.SelectedIndex = 0;
+                    roomListComboBox.IsEnabled = true;
+                }
+                else
+                {
+                    MessageBox.Show("No Meeting Room is free for the selected dates and time!",
+                                    "Critical Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
 
             ExcelHandler.WriteDataToExcel();
         }
         #endregion
 
-        #region
+        #region ResetButton_Click
         /*
          * ResetButton_Click():
          * This method closes the current application and opens a new blank application.
@@ -55,7 +98,7 @@ namespace MeetingRoom
         }
         #endregion
 
-        #region
+        #region SetFromTimerComboBox
         /*
          * Sets the from timer drop down
          */
@@ -112,7 +155,7 @@ namespace MeetingRoom
         }
         #endregion
 
-        #region
+        #region SetToTimerComboBox
         /*
          * Sets the from timer drop down
          */

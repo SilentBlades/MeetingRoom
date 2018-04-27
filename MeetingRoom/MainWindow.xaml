@@ -12,12 +12,12 @@
         <Label x:Name="dateLabel" Content="Date:" HorizontalAlignment="Left" Margin="21,102,0,0" VerticalAlignment="Top" Height="30" Width="58" FontFamily="Times New Roman" FontSize="18" FontWeight="Bold"/>
         <DatePicker x:Name="dateDatePicker" HorizontalAlignment="Left" Margin="71,104,0,0" VerticalAlignment="Top" Height="23" FontFamily="Calibri Light" BorderThickness="0" FontSize="18"/>
         <Label x:Name="fromTimeLabel" Content="From Time:" HorizontalAlignment="Left" Margin="261,102,0,0" VerticalAlignment="Top" Height="30" Width="103" FontFamily="Times New Roman" FontSize="18" FontWeight="Bold"/>
-        <Label x:Name="mrAvailableLabel" Content="Meeting Rooms Available:" HorizontalAlignment="Left" Margin="21,163,0,0" VerticalAlignment="Top" Width="212" FontFamily="Times New Roman" FontSize="18" FontWeight="Bold"/>
-        <Button x:Name="submitButton" Content="Submit" HorizontalAlignment="Left" Margin="292,363,0,0" VerticalAlignment="Top" Width="75" Click="submitButton_Click" FontFamily="Times New Roman" FontSize="18" FontWeight="Bold"/>
-        <Button x:Name="ResetButton" Content="Reset" HorizontalAlignment="Left" Margin="436,363,0,0" VerticalAlignment="Top" Width="75" FontFamily="Times New Roman" FontSize="18" FontWeight="Bold" Click="ResetButton_Click"/>
-        <ComboBox x:Name="roomListComboBox" HorizontalAlignment="Left" Margin="235,163,0,0" VerticalAlignment="Top" Width="212"/>
-        <ComboBox x:Name="fromTimeComboBox" HorizontalAlignment="Left" Margin="369,102,0,0" VerticalAlignment="Top" Width="97"/>
+        <Label x:Name="mrAvailableLabel" Content="Meeting Rooms Available:" HorizontalAlignment="Left" Margin="21,213,0,0" VerticalAlignment="Top" Width="212" FontFamily="Times New Roman" FontSize="18" FontWeight="Bold"/>
+        <Button x:Name="submitButton" Content="Submit" HorizontalAlignment="Left" Margin="292,163,0,0" VerticalAlignment="Top" Width="75" Click="submitButton_Click" FontFamily="Times New Roman" FontSize="18" FontWeight="Bold"/>
+        <Button x:Name="ResetButton" Content="Reset" HorizontalAlignment="Left" Margin="436,163,0,0" VerticalAlignment="Top" Width="75" FontFamily="Times New Roman" FontSize="18" FontWeight="Bold" Click="ResetButton_Click"/>
+        <ComboBox x:Name="roomListComboBox" HorizontalAlignment="Left" Margin="235,213,0,0" VerticalAlignment="Top" Width="212" Text="--Meeting Rooms--" IsEditable="True"/>
+        <ComboBox x:Name="fromTimeComboBox" HorizontalAlignment="Left" Margin="369,102,0,0" VerticalAlignment="Top" Width="97" Text="--From--" IsEditable="True"/>
         <Label x:Name="toTimeLabel" Content="To Time:" HorizontalAlignment="Left" Margin="547,99,0,0" VerticalAlignment="Top" Height="30" Width="103" FontFamily="Times New Roman" FontSize="18" FontWeight="Bold"/>
-        <ComboBox x:Name="toTimeComboBox" HorizontalAlignment="Left" Margin="634,99,0,0" VerticalAlignment="Top" Width="97"/>
+        <ComboBox x:Name="toTimeComboBox" HorizontalAlignment="Left" Margin="634,99,0,0" VerticalAlignment="Top" Width="97" Text="--To--" IsEditable="True"/>
     </Grid>
 </Window>
