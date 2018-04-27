@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Windows;
 
 namespace MeetingRoom
@@ -9,6 +8,8 @@ namespace MeetingRoom
     /// </summary>
     public partial class MainWindow : Window
     {
+        DateTimeSlot dts;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -16,6 +17,7 @@ namespace MeetingRoom
             SetToTimerComboBox();
             roomListComboBox.IsEnabled = false;
             ResizeMode = ResizeMode.CanMinimize;
+            dts = new DateTimeSlot();
         }
 
         #region submitButton_Click
@@ -26,8 +28,8 @@ namespace MeetingRoom
         private void submitButton_Click(object sender, RoutedEventArgs e)
         {
             bool executionFlag = true;
-            DateTimeSlot dts = new DateTimeSlot();
-            //DatePicker Validations
+
+            #region DatePicker Validation
             if (!string.IsNullOrEmpty(dateDatePicker.SelectedDate.ToString()))
             {
                 string[] dateInput = dateDatePicker.SelectedDate.ToString().Split(' '); //Get data from DatePicker
@@ -40,8 +42,9 @@ namespace MeetingRoom
                                 MessageBoxImage.Error);
                 executionFlag = false;
             }
+            #endregion
 
-            //TimePicker Validations
+            #region TimePicker Validations
             if (fromTimeComboBox.SelectedIndex == -1 || toTimeComboBox.SelectedIndex == -1)
             {
                 MessageBox.Show("Please select Time!",
@@ -50,20 +53,32 @@ namespace MeetingRoom
                 executionFlag = false;
             }
 
-            if(this.fromTimeComboBox.Items.IndexOf(fromTimeComboBox.SelectedItem) > this.fromTimeComboBox.Items.IndexOf(toTimeComboBox.SelectedItem))
+            if(fromTimeComboBox.SelectedIndex == toTimeComboBox.SelectedIndex)
+            {
+                MessageBox.Show("Start time and End time cannot be same!!",
+                                "Error", MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                executionFlag = false;
+            }
+
+            if (this.fromTimeComboBox.Items.IndexOf(fromTimeComboBox.SelectedItem) > this.fromTimeComboBox.Items.IndexOf(toTimeComboBox.SelectedItem))
             {
                 MessageBox.Show("Start time cannot be after End time!",
                                 "Error", MessageBoxButton.OK,
                                 MessageBoxImage.Error);
                 executionFlag = false;
             }
+            #endregion
 
             if (executionFlag)
             {
+                dts.FromString = this.fromTimeComboBox.SelectedItem.ToString();
+                dts.TooString = this.toTimeComboBox.SelectedItem.ToString();
                 dts.From = this.fromTimeComboBox.Items.IndexOf(fromTimeComboBox.SelectedItem) + 1;
                 dts.To = this.fromTimeComboBox.Items.IndexOf(toTimeComboBox.SelectedItem) + 1;
-
+               
                 dts.MeetingRoomList = ExcelHandler.GetDataFromExcel(dts);
+                roomListComboBox.Items.Clear();
 
                 //binding list to dropdown
                 if (dts.MeetingRoomList.Count > 0)
@@ -81,8 +96,6 @@ namespace MeetingRoom
                                     "Critical Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
-
-            ExcelHandler.WriteDataToExcel();
         }
         #endregion
 
@@ -211,5 +224,52 @@ namespace MeetingRoom
             this.toTimeComboBox.Items.Add("2330");
         }
         #endregion
+
+        #region roomListComboBox_DropDownClosed
+        /*
+         * roomListComboBox_DropDownClosed() is used to make an entry to excel of which meetingroom is selected.
+         */
+        private void roomListComboBox_DropDownClosed(object sender, System.EventArgs e)
+        {
+            dts.MeetingRoomSelected = roomListComboBox.SelectedItem.ToString();
+            string confirmationString = "Do you want to book meeting room " + dts.MeetingRoomSelected +
+                                        " on " + dts.Date +
+                                        " from " + dts.FromString +
+                                        " to " + dts.TooString + "?";
+            
+            MessageBoxResult res = MessageBox.Show(confirmationString, "Query", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (res == MessageBoxResult.Yes)
+            {
+                bool status = ExcelHandler.WriteDataToExcel(dts);
+                string successString = "Meeting room " + dts.MeetingRoomSelected +
+                                       " is booked successfully on " + dts.Date +
+                                       " from " + dts.FromString +
+                                       " to " + dts.TooString + "!";
+
+                if (status) { MessageBox.Show(successString, "Success", MessageBoxButton.OK, MessageBoxImage.Information); Application.Current.Shutdown(); }
+            }
+            else
+            {
+                roomListComboBox.IsEnabled = false;
+            }
+        }
+        #endregion
+
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            MessageBoxResult res = MessageBox.Show("Do you really want to close application?", "Query", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if(res == MessageBoxResult.Yes)
+            {
+                if (ExcelHandler.XlWorkSheet != null) { System.Runtime.InteropServices.Marshal.ReleaseComObject(ExcelHandler.XlWorkSheet); }
+                if (ExcelHandler.XlWorkBook != null) { System.Runtime.InteropServices.Marshal.ReleaseComObject(ExcelHandler.XlWorkBook); }
+                if (ExcelHandler.XlApp != null) { System.Runtime.InteropServices.Marshal.ReleaseComObject(ExcelHandler.XlApp); }
+                Application.Current.Shutdown();
+            }
+            else
+            {
+                e.Cancel = true;
+            }
+        }
     }
 }

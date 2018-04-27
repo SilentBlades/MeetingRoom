@@ -11,6 +11,8 @@ namespace MeetingRoom
         string date;
         int from;
         int to;
+        string fromString;
+        string tooString;
         string meetingRoomSelected;
         List<string> meetingRoomList;
 
@@ -19,5 +21,7 @@ namespace MeetingRoom
         public int To { get => to; set => to = value; }
         public List<string> MeetingRoomList { get => meetingRoomList; set => meetingRoomList = value; }
         public string MeetingRoomSelected { get => meetingRoomSelected; set => meetingRoomSelected = value; }
+        public string FromString { get => fromString; set => fromString = value; }
+        public string TooString { get => tooString; set => tooString = value; }
     }
 }

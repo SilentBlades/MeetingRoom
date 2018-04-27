@@ -13,6 +13,10 @@ namespace MeetingRoom
         private static Worksheet xlWorkSheet;
         private static string path;
 
+        public static Application XlApp { get => xlApp; set => xlApp = value; }
+        public static Workbook XlWorkBook { get => xlWorkBook; set => xlWorkBook = value; }
+        public static Worksheet XlWorkSheet { get => xlWorkSheet; set => xlWorkSheet = value; }
+
         #region GetDataFromExcel
         /*
          * GetDataFromExcel():
@@ -29,29 +33,29 @@ namespace MeetingRoom
             {
                 path = ConfigurationManager.AppSettings["ExcelPath"];
                 string sheetName = String.Empty;
-                xlApp = new Application();
-                xlWorkBook = xlApp.Workbooks.Open(path, ReadOnly: false);
+                XlApp = new Application();
+                XlWorkBook = XlApp.Workbooks.Open(path, ReadOnly: false);
 
 
                 //Finding the correct worksheet
-                foreach (Worksheet workSheet in xlWorkBook.Worksheets)
+                foreach (Worksheet workSheet in XlWorkBook.Worksheets)
                 {
                     sheetName = workSheet.Name;
 
                     if (sheetName.Equals(dts.Date))
                     {
-                        xlWorkSheet = workSheet;
+                        XlWorkSheet = workSheet;
                         break;
                     }
                 }
 
-                if (xlWorkSheet == null)
+                if (XlWorkSheet == null)
                 {
-                    Worksheet xlWorkSheetSource = (Worksheet)xlWorkBook.Sheets["Template"];
-                    xlWorkSheet = (Worksheet)xlWorkBook.Sheets[1];
-                    xlWorkSheetSource.Copy(xlWorkSheet);
-                    xlWorkSheet.Name = dts.Date;
-                    xlWorkSheetSource = (Worksheet)xlWorkBook.Sheets[1];
+                    Worksheet xlWorkSheetSource = (Worksheet)XlWorkBook.Sheets["Template"];
+                    XlWorkSheet = (Worksheet)XlWorkBook.Sheets[1];
+                    xlWorkSheetSource.Copy(XlWorkSheet);
+                    XlWorkSheet.Name = dts.Date;
+                    xlWorkSheetSource = (Worksheet)XlWorkBook.Sheets[1];
                     xlWorkSheetSource.Name = "Template";
                 }
 
@@ -60,24 +64,15 @@ namespace MeetingRoom
                 {
                     for (int i = cellFromIndex; i <= cellToIndex; i++)
                     {
-                        if (xlWorkSheet.Cells[rowIterator, i].Value == 0) { flag = true; }
+                        if (XlWorkSheet.Cells[rowIterator, i].Value == 0) { flag = true; }
                         else { flag = false; break; }
                     }
-                    if (flag) { meetingRoomList.Add(Convert.ToString(xlWorkSheet.Cells[rowIterator, 1].Value)); }
+                    if (flag) { meetingRoomList.Add(Convert.ToString(XlWorkSheet.Cells[rowIterator, 1].Value)); }
                 }
             }
             catch (Exception ex)
             {
                 ExceptionLogging.SendErrorToText(ex);
-            }
-            finally
-            {
-                xlWorkBook.Save();
-                xlWorkBook.Close(true, null, null);
-                xlApp.Quit();
-                Marshal.ReleaseComObject(xlWorkSheet);
-                Marshal.ReleaseComObject(xlWorkBook);
-                Marshal.ReleaseComObject(xlApp);
             }
 
             return meetingRoomList;
@@ -89,9 +84,42 @@ namespace MeetingRoom
          * WriteDataToExcel():
          * Writes the booked room details to the excel file.
          */
-        public static void WriteDataToExcel()
+        public static bool WriteDataToExcel(DateTimeSlot dts)
         {
-            //TODO
+            bool status = true;
+            try
+            {
+                int diff = dts.To - dts.From;
+                int colIterator = dts.From + 1;
+                int rowIndex = -1;
+
+                for (int j = 1; j < 11; j++)
+                {
+                    string temp = XlWorkSheet.Cells[j + 1, 1].text;
+                    if (XlWorkSheet.Cells[j + 1, 1].text.Contains(dts.MeetingRoomSelected)) { rowIndex = j + 1; break; }
+                }
+
+                for (int i = 0; i < diff; i++, colIterator++)
+                {
+                    XlWorkSheet.Cells[rowIndex, colIterator] = 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                status = false;
+                ExceptionLogging.SendErrorToText(ex);
+            }
+            finally
+            {
+                XlWorkBook.Save();
+                XlWorkBook.Close(true, null, null);
+                XlApp.Quit();
+                Marshal.ReleaseComObject(XlWorkSheet);
+                Marshal.ReleaseComObject(XlWorkBook);
+                Marshal.ReleaseComObject(XlApp);
+            }
+
+            return status;
         }
         #endregion
     }
