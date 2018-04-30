@@ -9,6 +9,7 @@ namespace MeetingRoom
     public partial class MainWindow : Window
     {
         DateTimeSlot dts;
+        bool resetButtonClicked;
 
         public MainWindow()
         {
@@ -16,6 +17,7 @@ namespace MeetingRoom
             SetFromTimerComboBox();
             SetToTimerComboBox();
             roomListComboBox.IsEnabled = false;
+            resetButtonClicked = false;
             ResizeMode = ResizeMode.CanMinimize;
             dts = new DateTimeSlot();
         }
@@ -52,21 +54,23 @@ namespace MeetingRoom
                                 MessageBoxImage.Error);
                 executionFlag = false;
             }
-
-            if(fromTimeComboBox.SelectedIndex == toTimeComboBox.SelectedIndex)
+            else
             {
-                MessageBox.Show("Start time and End time cannot be same!!",
+                if (fromTimeComboBox.SelectedIndex == toTimeComboBox.SelectedIndex)
+                {
+                    MessageBox.Show("Start time and End time cannot be same!!",
+                                    "Error", MessageBoxButton.OK,
+                                    MessageBoxImage.Error);
+                    executionFlag = false;
+                }
+
+                if (this.fromTimeComboBox.Items.IndexOf(fromTimeComboBox.SelectedItem) > this.fromTimeComboBox.Items.IndexOf(toTimeComboBox.SelectedItem))
+                {
+                    MessageBox.Show("Start time cannot be after End time!",
                                 "Error", MessageBoxButton.OK,
                                 MessageBoxImage.Error);
-                executionFlag = false;
-            }
-
-            if (this.fromTimeComboBox.Items.IndexOf(fromTimeComboBox.SelectedItem) > this.fromTimeComboBox.Items.IndexOf(toTimeComboBox.SelectedItem))
-            {
-                MessageBox.Show("Start time cannot be after End time!",
-                                "Error", MessageBoxButton.OK,
-                                MessageBoxImage.Error);
-                executionFlag = false;
+                    executionFlag = false;
+                }
             }
             #endregion
 
@@ -106,8 +110,13 @@ namespace MeetingRoom
          */
         private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start(Application.ResourceAssembly.Location);
-            Application.Current.Shutdown();
+            MessageBoxResult res = MessageBox.Show("Are you sure you want to reset all data?", "Query", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if(res == MessageBoxResult.Yes)
+            {
+                Process.Start(Application.ResourceAssembly.Location);
+                resetButtonClicked = true;
+                Application.Current.Shutdown();
+            }
         }
         #endregion
 
@@ -174,7 +183,6 @@ namespace MeetingRoom
          */
         private void SetToTimerComboBox()
         {
-            this.toTimeComboBox.Items.Add("0000");
             this.toTimeComboBox.Items.Add("0030");
             this.toTimeComboBox.Items.Add("0100");
             this.toTimeComboBox.Items.Add("0130");
@@ -222,6 +230,7 @@ namespace MeetingRoom
             this.toTimeComboBox.Items.Add("2230");
             this.toTimeComboBox.Items.Add("2300");
             this.toTimeComboBox.Items.Add("2330");
+            this.toTimeComboBox.Items.Add("0000");
         }
         #endregion
 
@@ -256,20 +265,28 @@ namespace MeetingRoom
         }
         #endregion
 
+        #region OnClosing
+        /*
+         * OnClosing() is overridden to handle graceful closure of application when user triggers a closure of the application
+         */
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
-            MessageBoxResult res = MessageBox.Show("Do you really want to close application?", "Query", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if(res == MessageBoxResult.Yes)
+            if(!resetButtonClicked)
             {
-                if (ExcelHandler.XlWorkSheet != null) { System.Runtime.InteropServices.Marshal.ReleaseComObject(ExcelHandler.XlWorkSheet); }
-                if (ExcelHandler.XlWorkBook != null) { System.Runtime.InteropServices.Marshal.ReleaseComObject(ExcelHandler.XlWorkBook); }
-                if (ExcelHandler.XlApp != null) { System.Runtime.InteropServices.Marshal.ReleaseComObject(ExcelHandler.XlApp); }
-                Application.Current.Shutdown();
-            }
-            else
-            {
-                e.Cancel = true;
+                MessageBoxResult res = MessageBox.Show("Do you really want to close application?", "Query", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (res == MessageBoxResult.Yes)
+                {
+                    if (ExcelHandler.XlWorkSheet != null) { System.Runtime.InteropServices.Marshal.ReleaseComObject(ExcelHandler.XlWorkSheet); }
+                    if (ExcelHandler.XlWorkBook != null) { System.Runtime.InteropServices.Marshal.ReleaseComObject(ExcelHandler.XlWorkBook); }
+                    if (ExcelHandler.XlApp != null) { System.Runtime.InteropServices.Marshal.ReleaseComObject(ExcelHandler.XlApp); }
+                    Application.Current.Shutdown();
+                }
+                else
+                {
+                    e.Cancel = true;
+                }
             }
         }
+        #endregion
     }
 }
